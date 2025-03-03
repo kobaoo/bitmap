@@ -1,8 +1,10 @@
 package utils
 
-import "io"
+import (
+	"io"
+)
 
-func ReadFile(r io.Reader) (string, error) {
+func ReadImage(r io.Reader) (string, error) {
 	line := make([]byte, 0, 1024)
 
 	buf := make([]byte, 1)

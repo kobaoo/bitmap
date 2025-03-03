@@ -1,7 +1,11 @@
 package tools
 
-type BitMap struct {
-	Header    Header
+type Bitmap struct {
+	Header    BitmapHeader
 	DIBHeader DIBHeader
-	Pixels    []byte
+	PixelData []byte
+}
+
+func LoadBitmap(filename string) (*Bitmap, error) {
+	return nil, nil
 }
