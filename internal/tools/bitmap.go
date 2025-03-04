@@ -5,7 +5,7 @@ import (
 )
 
 type Bitmap struct {
-	Header    BMPHeader
+	Header    *BMPHeader
 	PixelData []byte
 }
 

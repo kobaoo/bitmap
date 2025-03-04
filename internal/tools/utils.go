@@ -1,37 +1,16 @@
 package tools
 
-// Convert integer to hexadecimal string (improved)
-func toHex(n int) string {
-	hexChars := "0123456789abcdef"
-	if n == 0 {
-		return "00" // Handle zero case
-	}
-	var res string
-	for n > 0 {
-		res = string(hexChars[n%16]) + res
-		n = n / 16
-	}
-	if len(res) == 1 {
-		res = "0" + res
-	}
-	return res
+// Helper function to read a uint32 from a byte slice
+func readUint32(b []byte) uint32 {
+	return uint32(b[0]) | uint32(b[1])<<8 | uint32(b[2])<<16 | uint32(b[3])<<24
 }
 
-// Convert hexadecimal string to integer (decimal)
-func toDec(hexStr string) uint32 {
-	// Hexadecimal digits and their corresponding decimal values
-	hexChars := "0123456789abcdef"
-	hexMap := make(map[rune]int)
-	for i, c := range hexChars {
-		hexMap[c] = i
-	}
+// Helper function to read an int32 from a byte slice
+func readInt32(b []byte) int32 {
+	return int32(b[0]) | int32(b[1])<<8 | int32(b[2])<<16 | int32(b[3])<<24
+}
 
-	// Convert the hex string to decimal
-	var result int
-	for _, c := range hexStr {
-		// Update the result with each character's corresponding decimal value
-		result = result*16 + hexMap[c]
-	}
-
-	return uint32(result)
+// Helper function to read a uint16 from a byte slice
+func readUint16(b []byte) uint16 {
+	return uint16(b[0]) | uint16(b[1])<<8
 }
