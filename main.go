@@ -20,12 +20,15 @@ func main() {
 			fmt.Println("Usage: bitmap-tool header <filename>")
 			os.Exit(1)
 		}
-		filename := os.Args[2]
-		_, err := tools.LoadBitmap(filename)
+		fname := os.Args[2]
+
+		bm, err := tools.LoadBitmap(fname)
 		if err != nil {
-			fmt.Println("Error:", err)
+			fmt.Println(err)
 			os.Exit(1)
 		}
+		bm.Header.Print()
+
 	default:
 		fmt.Println("Unknown command:", command)
 		os.Exit(1)
