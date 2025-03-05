@@ -2,49 +2,33 @@ package main
 
 import (
 	"fmt"
-	"os"
 
+	"platform.alem.school/git/kseipoll/bitmap/internal/flags"
 	"platform.alem.school/git/kseipoll/bitmap/internal/tools"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("Usage: bitmap-tool <command> [options]")
-		os.Exit(1)
+	// Parse flags
+	cfg := flags.ReadFlags()
+
+	// Load the bitmap
+	bm, err := tools.LoadBitmap(cfg.Filename)
+	if err != nil {
+		fmt.Println("Error:", err)
+		return
 	}
 
-	command := os.Args[1]
-	switch command {
+	// Handle commands
+	switch cfg.Command {
 	case "header":
-		if len(os.Args) < 3 {
-			fmt.Println("Usage: bitmap-tool header <filename>")
-			os.Exit(1)
-		}
-		fname := os.Args[2]
-
-		bm, err := tools.LoadBitmap(fname)
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
 		bm.Header.Print()
 	case "copy":
-		if len(os.Args) < 3 {
-			fmt.Println("Usage: bitmap-tool copy <filename>")
-			os.Exit(1)
-		}
-		fname := os.Args[2]
-
-		bm, err := tools.LoadBitmap(fname)
+		err := bm.Copy()
 		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
+			fmt.Println("Error:", err)
+			return
 		}
-
-		bm.Copy()
-
 	default:
-		fmt.Println("Unknown command:", command)
-		os.Exit(1)
+		fmt.Println("Unknown command:", cfg.Command)
 	}
 }
