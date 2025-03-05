@@ -28,6 +28,20 @@ func main() {
 			os.Exit(1)
 		}
 		bm.Header.Print()
+	case "copy":
+		if len(os.Args) < 3 {
+			fmt.Println("Usage: bitmap-tool copy <filename>")
+			os.Exit(1)
+		}
+		fname := os.Args[2]
+
+		bm, err := tools.LoadBitmap(fname)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		bm.Copy()
 
 	default:
 		fmt.Println("Unknown command:", command)

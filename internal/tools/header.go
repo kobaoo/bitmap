@@ -2,9 +2,9 @@ package tools
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"io"
+	"os"
 )
 
 type BMPHeader struct {
@@ -13,7 +13,7 @@ type BMPHeader struct {
 	Reserved         uint32 // Unused
 	PixelArrayOffset uint32 // Offset to the pixel array
 	DIBHeaderSize    uint32 // Size of the DIB header
-	Width            int32  // Width of the image
+	Width            uint32 // Width of the image
 	Height           int32  // Height of the image
 	ColorPlanes      uint16 // Number of color planes
 	BitsPerPixel     uint16 // Bits per pixel
@@ -25,7 +25,7 @@ type BMPHeader struct {
 	ImportantColors  uint32 // Number of important colors
 }
 
-func ReadImageHeader(r io.Reader) (*BMPHeader, error) {
+func ReadImageHeader(r io.Reader, fname string) (*BMPHeader, error) {
 	bh := new(BMPHeader)
 
 	// Use a buffered reader for efficient I/O
@@ -39,7 +39,7 @@ func ReadImageHeader(r io.Reader) (*BMPHeader, error) {
 
 	// Validate the signature (first 2 bytes)
 	if string(buf[:2]) != "BM" {
-		return nil, errors.New("given image file format is not .bmp")
+		return nil, fmt.Errorf("Error: %s is not bitmap file", fname)
 	}
 	bh.Signature = "BM"
 
@@ -48,7 +48,7 @@ func ReadImageHeader(r io.Reader) (*BMPHeader, error) {
 	bh.Reserved = readUint32(buf[6:10])
 	bh.PixelArrayOffset = readUint32(buf[10:14])
 	bh.DIBHeaderSize = readUint32(buf[14:18])
-	bh.Width = readInt32(buf[18:22])
+	bh.Width = readUint32(buf[18:22])
 	bh.Height = readInt32(buf[22:26])
 	bh.ColorPlanes = readUint16(buf[26:28])
 	bh.BitsPerPixel = readUint16(buf[28:30])
@@ -58,8 +58,21 @@ func ReadImageHeader(r io.Reader) (*BMPHeader, error) {
 	bh.YResolution = readUint32(buf[42:46])
 	bh.ColorsInPalette = readUint32(buf[46:50])
 	bh.ImportantColors = readUint32(buf[50:54])
-
 	return bh, nil
+}
+
+func (bh *BMPHeader) ReadImagePixels(r *os.File) ([]byte, error) {
+	pixelData := make([]byte, bh.ImageSize)
+
+	_, err := r.Seek(int64(bh.PixelArrayOffset), 0)
+	if err != nil {
+		return []byte{}, fmt.Errorf("Error: %w seeking to pixel data:", err)
+	}
+	_, err = r.Read(pixelData)
+	if err != nil {
+		return []byte{}, fmt.Errorf("Error: %w reading pixel data:", err)
+	}
+	return pixelData, nil
 }
 
 func (bh *BMPHeader) Print() {

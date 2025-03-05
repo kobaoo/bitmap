@@ -17,10 +17,15 @@ func LoadBitmap(fname string) (*Bitmap, error) {
 	defer file.Close()
 
 	bm := new(Bitmap)
-	bh, err := ReadImageHeader(file)
+	bh, err := ReadImageHeader(file, fname)
+	if err != nil {
+		return nil, err
+	}
+	pixels, err := bh.ReadImagePixels(file)
 	if err != nil {
 		return nil, err
 	}
 	bm.Header = bh
+	bm.PixelData = pixels
 	return bm, nil
 }
