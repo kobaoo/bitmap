@@ -11,7 +11,7 @@ type Config struct {
 	Filename    string
 	NewFileName string
 	MirrorType  []string // Slice to store multiple mirroring options
-	Filter      string
+	Filter      []string
 	Help        bool
 }
 
@@ -22,7 +22,7 @@ func ReadFlags() Config {
 	flag.StringVar(&cfg.Filename, "filename", "", "Source file to process")
 	flag.StringVar(&cfg.NewFileName, "newfilename", "", "Output file for processed image")
 	flag.Var((*stringSliceFlag)(&cfg.MirrorType), "mirror", "Mirroring options (horizontal, vertical). Can be specified multiple times.")
-	flag.StringVar(&cfg.Filter, "filter", "", "Filter to apply on bitmap")
+	flag.Var((*stringSliceFlag)(&cfg.Filter), "filter", "Filtering options (blue, read, green, negative, pixelate, blur)")
 	flag.BoolVar(&cfg.Help, "help", false, "Prints usage information")
 
 	// Default usage (for ./bitmap)

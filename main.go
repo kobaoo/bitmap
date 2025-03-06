@@ -46,6 +46,30 @@ func main() {
 			}
 		}
 		bm.Mirror(cfg.NewFileName, mirror)
+
+		filter := new(tools.Filter)
+
+		for _, ftype := range cfg.Filter {
+			switch ftype {
+			case "blue":
+				filter.Blue = true
+			case "red":
+				filter.Red = true
+			case "green":
+				filter.Green = true
+			case "negative":
+				filter.Negative = true
+			case "pixelate":
+				filter.Pixelate = true
+			case "blur":
+				filter.Blur = true
+			default:
+				fmt.Fprintln(os.Stderr, "Error: invalid filter type")
+				flag.Usage()
+				os.Exit(1)
+			}
+		}
+		bm.Filter(cfg.NewFileName, filter)
 	default:
 		fmt.Println("Unknown command:", cfg.Command)
 	}
