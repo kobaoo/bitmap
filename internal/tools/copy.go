@@ -20,6 +20,7 @@ func (bm *Bitmap) Copy(newfilename string) error {
 		rowEnd := rowStart + rowSize
 		row := pxdata[rowStart:rowEnd]
 
+		_, err = file.Write(row)
 		if err != nil {
 			return fmt.Errorf("failed to write pixel data to BMP file: %w", err)
 		}

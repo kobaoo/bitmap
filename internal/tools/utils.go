@@ -45,7 +45,6 @@ func (bm *Bitmap) copyHeader(newfilename string) (*os.File, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to create BMP file: %w", err)
 	}
-	defer file.Close()
 	if err = bm.writeHeader(file); err != nil {
 		return nil, err
 	}
