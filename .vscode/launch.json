@@ -10,7 +10,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${fileDirname}",
-      "args": ["-command=copy" ,"-filename=data/sample.bmp" ,"-newfilename=result1.bmp"]
+      "args": ["-command=apply", "--filter=pixelate", "-filename" ,"data/sample.bmp" ,"-newfilename" ,"sample-filtered-blue.bmp"]
     }
   ]
 }
