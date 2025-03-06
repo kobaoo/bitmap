@@ -79,7 +79,6 @@ func main() {
 			bm.Filter(cfg.NewFileName, filter)
 
 		}
-
 	default:
 		fmt.Println("Unknown command:", cfg.Command)
 	}
