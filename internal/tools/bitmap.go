@@ -5,8 +5,29 @@ import (
 )
 
 type Bitmap struct {
-	Header    *BMPHeader
-	PixelData []byte
+	H  *BMPHeader
+	Px *Pixel
+}
+
+type Pixel struct {
+	Data       []byte
+	BytesPerPx uint16
+	W          uint16
+	H          uint16
+	RowSize    uint16
+	PadSize    uint16
+	Pad        []byte
+}
+
+func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16, imgSize uint16) *Pixel {
+	if h < 0 {
+		h = -h
+	}
+	bytesPerPx := bitsPerPx / 8
+	rowSize := w * bytesPerPx
+	padSize := (4 - (rowSize % 4)) % 4 // Padding to make row size a multiple of 4
+	pad := make([]byte, padSize)
+	return &Pixel{BytesPerPx: bytesPerPx, W: w, H: uint16(h), RowSize: rowSize, PadSize: padSize, Pad: pad}
 }
 
 func LoadBitmap(fname string) (*Bitmap, error) {
@@ -25,7 +46,7 @@ func LoadBitmap(fname string) (*Bitmap, error) {
 	if err != nil {
 		return nil, err
 	}
-	bm.Header = bh
-	bm.PixelData = pixels
+	bm.H = bh
+	bm.Px = NewPixel(&pixels, bh.BitsPerPx, bh.W, bh.H, uint16(bh.ImgSize))
 	return bm, nil
 }

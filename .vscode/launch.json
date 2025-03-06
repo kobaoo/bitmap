@@ -10,7 +10,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${fileDirname}",
-      "args": ["header", "data/example.bmp"]
+      "args": ["-command=apply" ,"-mirror=v", "-mirror=h" ,"-filename=data/sample.bmp" ,"-newfilename=result1.bmp"]
     }
   ]
 }
