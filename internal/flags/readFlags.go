@@ -18,7 +18,7 @@ type Config struct {
 func ReadFlags() Config {
 	var cfg Config
 
-	flag.StringVar(&cfg.Command, "", "", "Command to execute (header, copy, apply)")
+	flag.StringVar(&cfg.Command, "command", "", "Command to execute (header, copy, apply)")
 	flag.StringVar(&cfg.Filename, "filename", "", "Source file to process")
 	flag.StringVar(&cfg.NewFileName, "newfilename", "", "Output file for processed image")
 	flag.Var((*stringSliceFlag)(&cfg.MirrorType), "mirror", "Mirroring options (horizontal, vertical). Can be specified multiple times.")

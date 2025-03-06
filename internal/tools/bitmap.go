@@ -27,7 +27,7 @@ func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16, imgSize uint16) *Pixel
 	rowSize := w * bytesPerPx
 	padSize := (4 - (rowSize % 4)) % 4 // Padding to make row size a multiple of 4
 	pad := make([]byte, padSize)
-	return &Pixel{BytesPerPx: bytesPerPx, W: w, H: uint16(h), RowSize: rowSize, PadSize: padSize, Pad: pad}
+	return &Pixel{Data: *data, BytesPerPx: bytesPerPx, W: w, H: uint16(h), RowSize: rowSize, PadSize: padSize, Pad: pad}
 }
 
 func LoadBitmap(fname string) (*Bitmap, error) {
