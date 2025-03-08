@@ -77,8 +77,23 @@ func main() {
 				}
 			}
 			bm.Filter(cfg.NewFileName, filter)
-
 		}
+		if len(cfg.RotateType) != 0 {
+			err := bm.Rotate(cfg.NewFileName, cfg.RotateType)
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+		}
+
+		if len(cfg.CropParams) != 0 {
+			err := bm.Crop(cfg.NewFileName, cfg.CropParams)
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
+		}
+
 	default:
 		fmt.Println("Unknown command:", cfg.Command)
 	}
