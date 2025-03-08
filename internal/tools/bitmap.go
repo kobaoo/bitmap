@@ -1,6 +1,7 @@
 package tools
 
 import (
+	"fmt"
 	"os"
 )
 
@@ -49,4 +50,32 @@ func LoadBitmap(fname string) (*Bitmap, error) {
 	bm.H = bh
 	bm.Px = NewPixel(&pixels, bh.BitsPerPx, bh.W, bh.H, uint16(bh.ImgSize))
 	return bm, nil
+}
+
+func (bm *Bitmap) Save(filename string) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return fmt.Errorf("failed to create file %s: %w", filename, err)
+	}
+	defer file.Close()
+
+	// Обновляем заголовок перед записью
+	bm.H.ImgSize = uint32(len(bm.Px.Data)) // Размер пиксельных данных
+	bm.H.FSize = 54 + bm.H.ImgSize         // Общий размер файла (заголовок + пиксели)
+	bm.H.HeaderSize = 54                   // Смещение до пикселей
+	bm.H.DIBHeaderSize = 40                // Размер DIB-заголовка (обычно 40)
+
+	// Записываем заголовок BMP
+	err = bm.H.Write(file)
+	if err != nil {
+		return fmt.Errorf("failed to write BMP header: %w", err)
+	}
+
+	// Записываем пиксельные данные
+	_, err = file.Write(bm.Px.Data)
+	if err != nil {
+		return fmt.Errorf("failed to write pixel data: %w", err)
+	}
+
+	return nil
 }
