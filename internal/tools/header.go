@@ -2,6 +2,7 @@ package tools
 
 import (
 	"bufio"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"os"
@@ -73,6 +74,35 @@ func (bh *BMPHeader) ReadImagePixels(r *os.File) ([]byte, error) {
 		return []byte{}, fmt.Errorf("Error: %w reading pixel data:", err)
 	}
 	return pixelData, nil
+}
+
+func (h *BMPHeader) Write(file *os.File) error {
+	buf := make([]byte, 54)
+
+	copy(buf[0:2], "BM") // Magic bytes
+
+	binary.LittleEndian.PutUint32(buf[2:6], h.FSize)                   // Общий размер файла
+	binary.LittleEndian.PutUint16(buf[6:8], h.Reserved)                // Зарезервированные 2 байта (должны быть 0)
+	binary.LittleEndian.PutUint16(buf[8:10], h.Reserved)               // Зарезервированные 2 байта (должны быть 0)
+	binary.LittleEndian.PutUint32(buf[10:14], uint32(h.HeaderSize))    // Смещение пиксельных данных (обычно 54)
+	binary.LittleEndian.PutUint32(buf[14:18], uint32(h.DIBHeaderSize)) // Размер DIB-заголовка (обычно 40)
+	binary.LittleEndian.PutUint32(buf[18:22], uint32(h.W))             // Ширина (4 байта)
+	binary.LittleEndian.PutUint32(buf[22:26], uint32(h.H))             // Высота (4 байта)
+	binary.LittleEndian.PutUint16(buf[26:28], h.ColorPlanes)           // Количество цветовых плоскостей (1)
+	binary.LittleEndian.PutUint16(buf[28:30], h.BitsPerPx)             // Бит на пиксель (24)
+	binary.LittleEndian.PutUint32(buf[30:34], uint32(h.Comp))          // Сжатие (0 = нет)
+	binary.LittleEndian.PutUint32(buf[34:38], h.ImgSize)               // Размер пиксельных данных
+	binary.LittleEndian.PutUint32(buf[38:42], uint32(h.XRes))          // Разрешение по X
+	binary.LittleEndian.PutUint32(buf[42:46], uint32(h.YRes))          // Разрешение по Y
+	binary.LittleEndian.PutUint32(buf[46:50], h.ColorsInPalette)       // Количество цветов
+	binary.LittleEndian.PutUint32(buf[50:54], h.ImportantColors)       // Важные цвета
+
+	_, err := file.Write(buf)
+	if err != nil {
+		return fmt.Errorf("failed to write BMP header: %w", err)
+	}
+
+	return nil
 }
 
 func (bh *BMPHeader) Print() {
