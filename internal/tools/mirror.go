@@ -1,71 +1,42 @@
 package tools
 
-import (
-	"fmt"
-)
+func (bm *Bitmap) Mirror(newfilename string, commands []string) error {
+	for _, command := range commands {
+		h := int(bm.Px.H)
+		rowSize := int(bm.Px.RowSize)
+		btsPerPx := int(bm.Px.BytesPerPx)
+		pxdata := bm.Px.Data
 
-type Mirror struct {
-	V bool // Vertical mirror
-	H bool // Horizontal mirror
-}
+		mirrored := make([]byte, len(pxdata))
+		copy(mirrored, pxdata)
+		switch command {
+		case "h", "hor", "horizontally":
+			for y := 0; y < h; y++ {
+				rowStart := y * rowSize
+				rowEnd := rowStart + rowSize
+				row := mirrored[rowStart:rowEnd]
 
-func (bm *Bitmap) Mirror(newfilename string, m *Mirror) error {
-	file, err := bm.copyHeader(newfilename)
-	if err != nil {
-		return err
-	}
-	h := int(bm.Px.H)
-	rowSize := int(bm.Px.RowSize)
-	btsPerPx := int(bm.Px.BytesPerPx)
-	padSize := int(bm.Px.PadSize)
-	pad := bm.Px.Pad
-	pxdata := bm.Px.Data
-	// Helper function to write a row with optional horizontal mirroring
-	writeRow := func(row []byte) error {
-		if m.H {
-			// Reverse the row for horizontal mirroring
-			for i := 0; i < len(row)/2; i += btsPerPx {
-				for j := 0; j < btsPerPx; j++ {
-					row[i+j], row[len(row)-i-btsPerPx+j] = row[len(row)-i-btsPerPx+j], row[i+j]
+				// Reverse the row for horizontal mirroring
+				for i := 0; i < len(row)/2; i += btsPerPx {
+					for j := 0; j < btsPerPx; j++ {
+						row[i+j], row[len(row)-i-btsPerPx+j] = row[len(row)-i-btsPerPx+j], row[i+j]
+					}
 				}
 			}
-		}
-
-		_, err := file.Write(row)
-		if err != nil {
-			return fmt.Errorf("failed to write pixel data to BMP file: %w", err)
-		}
-
-		// Write padding bytes if necessary
-		if padSize > 0 {
-			_, err = file.Write(pad)
-			if err != nil {
-				return fmt.Errorf("failed to write padding to BMP file: %w", err)
+		case "v", "ver", "vertically":
+			for y := 0; y < h; y++ {
+				srcRowStart := y * rowSize
+				dstRowStart := (h - 1 - y) * rowSize
+				copy(mirrored[dstRowStart:dstRowStart+rowSize], pxdata[srcRowStart:srcRowStart+rowSize])
 			}
 		}
-		return nil
+		copy(pxdata, mirrored)
 	}
 
-	// Write rows with optional vertical mirroring
-	if m.V {
-		for y := h - 1; y >= 0; y-- { // BMP stores rows bottom-to-top
-			rowStart := y * rowSize
-			rowEnd := rowStart + rowSize
-			row := pxdata[rowStart:rowEnd]
-			if err := writeRow(row); err != nil {
-				return err
-			}
-		}
-	} else {
-		for y := 0; y < h; y++ { // BMP stores rows bottom-to-top
-			rowStart := y * rowSize
-			rowEnd := rowStart + rowSize
-			row := pxdata[rowStart:rowEnd]
-			if err := writeRow(row); err != nil {
-				return err
-			}
-		}
-	}
+	bm.H.ImgSize = uint32(len(bm.Px.Data))
+	bm.H.FSize = 54 + bm.H.ImgSize
+	bm.H.HeaderSize = 54
+	bm.H.DIBHeaderSize = 40
 
-	return nil
+	return bm.Save(newfilename)
 }

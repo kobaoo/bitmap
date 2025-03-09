@@ -10,7 +10,7 @@ type Config struct {
 	Command     string
 	Filename    string
 	NewFileName string
-	MirrorType  []string // Slice to store multiple mirroring options
+	MirrorType  []string
 	FilterType  []string
 	RotateType  []string
 	CropParams  []string

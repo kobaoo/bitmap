@@ -1,93 +1,46 @@
 package tools
 
-import "fmt"
+func (bm *Bitmap) Filter(newfilename string, filterCommands []string) error {
+	for _, command := range filterCommands {
+		pxdata := bm.Px.Data
+		btsPerPx := int(bm.Px.BytesPerPx)
+		switch command {
+		case "blue":
+			for i := 0; i < len(pxdata)-2; i += btsPerPx {
+				pxdata[i+1] = 0
+				pxdata[i+2] = 0
+			}
+		case "red":
+			for i := 0; i < len(pxdata)-2; i += btsPerPx {
+				pxdata[i] = 0
+				pxdata[i+1] = 0
+			}
+		case "green":
+			for i := 0; i < len(pxdata)-2; i += btsPerPx {
+				pxdata[i] = 0
+				pxdata[i+2] = 0
+			}
+		case "negative":
+			for i := 0; i < len(pxdata)-2; i += btsPerPx {
+				pxdata[i] = 255 - pxdata[i]
+				pxdata[i+1] = 255 - pxdata[i+1]
+				pxdata[i+2] = 255 - pxdata[i+2]
+			}
+		case "pixelate":
+			bm.pixelate(10)
+		case "blur":
+			bm.blur(15)
+		}
+	}
 
-type Filter struct {
-	IsBlue     bool
-	IsGreen    bool
-	IsRed      bool
-	IsNegative bool
-	IsPixelate bool
-	IsBlur     bool
+	bm.H.ImgSize = uint32(len(bm.Px.Data))
+	bm.H.FSize = 54 + bm.H.ImgSize
+	bm.H.HeaderSize = 54
+	bm.H.DIBHeaderSize = 40
+
+	return bm.Save(newfilename)
 }
 
-func (bm *Bitmap) Filter(newfilename string, f *Filter) error {
-	file, err := bm.copyHeader(newfilename)
-	if err != nil {
-		return err
-	}
-	h := int(bm.Px.H)
-	rowSize := int(bm.Px.RowSize)
-	btsPerPx := int(bm.Px.BytesPerPx)
-	padSize := int(bm.Px.PadSize)
-	pad := bm.Px.Pad
-	pxdata := bm.Px.Data
-
-	writeRow := func(row []byte) error {
-		// Process each pixel in the row
-		for i := 0; i < len(row); i += btsPerPx {
-			// Apply filters
-			if f.IsBlue {
-				// Retain only the blue channel
-				row[i+1] = 0 // Green channel
-				row[i+2] = 0 // Red channel
-			}
-			if f.IsRed {
-				// Retain only the red channel
-				row[i] = 0   // Blue channel
-				row[i+1] = 0 // Green channel
-			}
-			if f.IsGreen {
-				// Retain only the green channel
-				row[i+2] = 0 // Blue channel
-				row[i] = 0   // Red channel
-			}
-			if f.IsNegative {
-				// Apply negative filter
-				row[i] = 255 - row[i]     // Red channel
-				row[i+1] = 255 - row[i+1] // Green channel
-				row[i+2] = 255 - row[i+2] // Blue channel
-			}
-		}
-		// Write the processed row to the file
-		_, err := file.Write(row)
-		if err != nil {
-			return fmt.Errorf("failed to write pixel data to BMP file: %w", err)
-		}
-
-		// Write padding bytes if necessary
-		if padSize > 0 {
-			_, err = file.Write(pad)
-			if err != nil {
-				return fmt.Errorf("failed to write padding to BMP file: %w", err)
-			}
-		}
-		return nil
-	}
-	// Apply pixelation if enabled
-	if f.IsPixelate {
-		bm.pixelate(20) // Default block size of 20
-	}
-
-	// Apply blur if enabled
-	if f.IsBlur {
-		bm.blur(25)
-	}
-
-	// Write all rows to the file
-	for y := 0; y < h; y++ {
-		rowStart := y * rowSize
-		rowEnd := rowStart + rowSize
-		row := pxdata[rowStart:rowEnd]
-		if err := writeRow(row); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// Helper function to apply pixelation
 func (bm *Bitmap) pixelate(blockSize int) {
 	h := int(bm.Px.H)
 	w := int(bm.Px.W)
@@ -125,7 +78,6 @@ func (bm *Bitmap) pixelate(blockSize int) {
 	}
 }
 
-// Helper function to apply blur with a configurable kernel size and edge handling
 func (bm *Bitmap) blur(kernelSize int) {
 	h := int(bm.Px.H)
 	w := int(bm.Px.W)
