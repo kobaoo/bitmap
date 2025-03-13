@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"platform.alem.school/git/kseipoll/bitmap/internal/flags"
 	"platform.alem.school/git/kseipoll/bitmap/internal/tools"
@@ -15,7 +16,7 @@ func main() {
 	bm, err := tools.LoadBitmap(cfg.Filename)
 	if err != nil {
 		fmt.Println("Error:", err)
-		return
+		os.Exit(1)
 	}
 
 	// Handle commands
@@ -26,20 +27,28 @@ func main() {
 		err := bm.Copy(cfg.NewFileName)
 		if err != nil {
 			fmt.Println("Error:", err)
-			return
+			os.Exit(1)
 		}
 	case "apply":
 		if len(cfg.MirrorType) != 0 {
-			bm.Mirror(cfg.NewFileName, cfg.MirrorType)
+			err := bm.Mirror(cfg.NewFileName, cfg.MirrorType)
+			if err != nil {
+				fmt.Println("Error: ", err)
+				os.Exit(1)
+			}
 		}
 		if len(cfg.FilterType) != 0 {
-			bm.Filter(cfg.NewFileName, cfg.FilterType)
+			err := bm.Filter(cfg.NewFileName, cfg.FilterType)
+			if err != nil {
+				fmt.Println("Error: ", err)
+				os.Exit(1)
+			}
 		}
 		if len(cfg.RotateType) != 0 {
 			err := bm.Rotate(cfg.NewFileName, cfg.RotateType)
 			if err != nil {
 				fmt.Println("Error:", err)
-				return
+				os.Exit(1)
 			}
 		}
 
@@ -47,7 +56,7 @@ func main() {
 			err := bm.Crop(cfg.NewFileName, cfg.CropParams)
 			if err != nil {
 				fmt.Println("Error:", err)
-				return
+				os.Exit(1)
 			}
 		}
 

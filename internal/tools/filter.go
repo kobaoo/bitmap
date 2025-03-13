@@ -1,5 +1,7 @@
 package tools
 
+import "fmt"
+
 func (bm *Bitmap) Filter(newfilename string, filterCommands []string) error {
 	pxdata := bm.Px.Data
 	btsPerPx := int(bm.Px.BytesPerPx)
@@ -44,6 +46,8 @@ func (bm *Bitmap) Filter(newfilename string, filterCommands []string) error {
 			bm.pixelate(10)
 		case "blur":
 			bm.blur(15)
+		default:
+			return fmt.Errorf("invalid filter operation: %v", command)
 		}
 	}
   

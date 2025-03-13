@@ -1,5 +1,7 @@
 package tools
 
+import "fmt"
+
 func (bm *Bitmap) Mirror(newfilename string, commands []string) error {
 	for _, command := range commands {
 		h := int(bm.Px.H)
@@ -29,6 +31,8 @@ func (bm *Bitmap) Mirror(newfilename string, commands []string) error {
 				dstRowStart := (h - 1 - y) * rowSize
 				copy(mirrored[dstRowStart:dstRowStart+rowSize], pxdata[srcRowStart:srcRowStart+rowSize])
 			}
+		default:
+			return fmt.Errorf("invalid mirroring type: %v", command)
 		}
 		copy(pxdata, mirrored)
 	}
