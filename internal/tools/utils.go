@@ -77,3 +77,10 @@ func (bm *Bitmap) writeHeader(file *os.File) error {
 	}
 	return nil
 }
+
+func abs(x int) int {
+    if x < 0 {
+        return -x
+    }
+    return x
+}

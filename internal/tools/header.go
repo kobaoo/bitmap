@@ -55,6 +55,10 @@ func ReadImageHeader(r io.Reader, fname string) (*BMPHeader, error) {
 	bh.BitsPerPx = readUint16(buf[28:30])
 	bh.Comp = readUint16(buf[30:34])
 	bh.ImgSize = readUint32(buf[34:38])
+	if bh.ImgSize == 0 {
+		bytesPerRow := ((int(bh.W) * int(bh.BitsPerPx) + 31) / 32) * 4
+		bh.ImgSize = uint32(bytesPerRow) * uint32(abs(int(bh.H)))
+	}
 	bh.XRes = readUint16(buf[38:42])
 	bh.YRes = readUint16(buf[42:46])
 	bh.ColorsInPalette = readUint32(buf[46:50])
