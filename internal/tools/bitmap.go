@@ -19,16 +19,26 @@ type Pixel struct {
 	PadSize    uint16
 	Pad        []byte
 }
-
-func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16, imgSize uint16) *Pixel {
+func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16, imgSize uint32) *Pixel {
 	if h < 0 {
 		h = -h
 	}
 	bytesPerPx := bitsPerPx / 8
 	rowSize := w * bytesPerPx
-	padSize := (4 - (rowSize % 4)) % 4 // Padding to make row size a multiple of 4
-	pad := make([]byte, padSize)
-	return &Pixel{Data: *data, BytesPerPx: bytesPerPx, W: w, H: uint16(h), RowSize: rowSize, PadSize: padSize, Pad: pad}
+	padSize := (4 - (rowSize % 4)) % 4
+	expectedSize := uint32(rowSize+padSize) * uint32(h)
+	if uint32(len(*data)) < expectedSize {
+		panic("Недостаточно данных для изображения")
+	}
+ 
+	return &Pixel{
+		Data:       *data,
+		BytesPerPx: bytesPerPx,
+		W:          w,
+		H:          uint16(h),
+		RowSize:    rowSize,
+		PadSize:    padSize,
+	}
 }
 
 func LoadBitmap(fname string) (*Bitmap, error) {
@@ -48,7 +58,7 @@ func LoadBitmap(fname string) (*Bitmap, error) {
 		return nil, err
 	}
 	bm.H = bh
-	bm.Px = NewPixel(&pixels, bh.BitsPerPx, bh.W, bh.H, uint16(bh.ImgSize))
+	bm.Px = NewPixel(&pixels, bh.BitsPerPx, bh.W, bh.H, bh.ImgSize)
 	return bm, nil
 }
 
