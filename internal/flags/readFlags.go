@@ -40,6 +40,29 @@ func ReadFlags() Config {
 		fmt.Fprintf(os.Stderr, "Use 'bitmap <command> --help' for more information about a command.\n")
 	}
 
+	if len(os.Args) < 2 {
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	// Extract command type (first argument)
+	commandType := os.Args[1]
+
+	// Process the command type
+	switch commandType {
+	case "apply":
+		cfg.Command = "apply"
+	case "header":
+		cfg.Command = "header"
+	case "copy":
+		cfg.Command = "copy"
+	default:
+		fmt.Println("Wrong command, use --help")
+		os.Exit(1)
+	}
+
+	// Remove the first argument (the command) before parsing flags
+	os.Args = append([]string{os.Args[0]}, os.Args[2:]...)
 	flag.Parse()
 
 	// If --help is passed, show command-specific usage
