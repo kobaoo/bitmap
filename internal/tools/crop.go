@@ -35,23 +35,35 @@ func (bm *Bitmap) Crop(newfilename string, params []string) error {
 		return fmt.Errorf("invalid crop dimensions")
 	}
 
-	newData := make([]byte, newWidth*newHeight*int(bm.Px.BytesPerPx))
+	// Calculate the new row size with padding
+	newRowSize := (newWidth*int(bm.Px.BytesPerPx) + 3) &^ 3 // Align to 4 bytes
+	newDataSize := newRowSize * newHeight
+	newData := make([]byte, newDataSize)
 
 	// Обрезаем изображение
 	for y := 0; y < newHeight; y++ {
-		srcIdx := ((yOffset+y)*int(bm.Px.RowSize) + xOffset*int(bm.Px.BytesPerPx))
-		dstIdx := y * newWidth * int(bm.Px.BytesPerPx)
-		copy(newData[dstIdx:dstIdx+newWidth*int(bm.Px.BytesPerPx)], bm.Px.Data[srcIdx:srcIdx+newWidth*int(bm.Px.BytesPerPx)])
+		srcRowStart := (yOffset + y) * (int(bm.Px.RowSize) + int(bm.Px.PadSize))
+		dstRowStart := y * newRowSize
+
+		srcStart := srcRowStart + xOffset*int(bm.Px.BytesPerPx)
+		srcEnd := srcStart + newWidth*int(bm.Px.BytesPerPx)
+
+		dstStart := dstRowStart
+		dstEnd := dstStart + newWidth*int(bm.Px.BytesPerPx)
+
+		copy(newData[dstStart:dstEnd], bm.Px.Data[srcStart:srcEnd])
 	}
 
+	// Update the bitmap headers and pixel data
 	bm.Px.Data = newData
 	bm.Px.W = uint16(newWidth)
 	bm.Px.H = uint16(newHeight)
 	bm.Px.RowSize = uint16(newWidth * int(bm.Px.BytesPerPx))
+	bm.Px.PadSize = uint16(newRowSize - (newWidth * int(bm.Px.BytesPerPx)))
 
 	bm.H.W = uint16(newWidth)
 	bm.H.H = int16(newHeight)
-	bm.H.ImgSize = uint32(len(newData))
+	bm.H.ImgSize = uint32(newDataSize)
 	bm.H.FSize = 54 + bm.H.ImgSize
 
 	return bm.Save(newfilename)
