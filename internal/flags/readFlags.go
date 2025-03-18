@@ -66,10 +66,13 @@ func ReadFlags() Config {
 
 	// This piece of code checks if filename and newfilename was written
 	if cfg.Command != "header" && len(os.Args) < 2 {
-		log.Fatal("You have less arguments than expected")
+		log.Fatal("Error: You have less arguments than expected")
 	}
 	if cfg.Command != "header" && len(flag.Args()) < 2 {
-		log.Fatal("You don't wrote filename or newfilename")
+		log.Fatal("Error: You don't wrote filename or newfilename")
+	}
+	if cfg.Command != "header" && len(flag.Args()) > 2 {
+		log.Fatal("Error: You have more arguments than needed")
 	}
 	cfg.Filename = flag.Args()[0]
 	if cfg.Command != "header" {
