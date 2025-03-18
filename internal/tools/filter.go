@@ -43,7 +43,7 @@ func (bm *Bitmap) Filter(newfilename string, filterCommands []string) error {
 				}
 			}
 		case "pixelate":
-			bm.pixelate(10)
+			bm.pixelate(15)
 		case "blur":
 			bm.blur(15)
 		default:

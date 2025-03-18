@@ -19,6 +19,7 @@ type Pixel struct {
 	PadSize    uint16
 	Pad        []byte
 }
+
 func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16, imgSize uint32) *Pixel {
 	if h < 0 {
 		h = -h
@@ -30,7 +31,7 @@ func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16, imgSize uint32) *Pixel
 	if uint32(len(*data)) < expectedSize {
 		panic("Недостаточно данных для изображения")
 	}
- 
+
 	return &Pixel{
 		Data:       *data,
 		BytesPerPx: bytesPerPx,
@@ -68,7 +69,6 @@ func (bm *Bitmap) Save(filename string) error {
 		return fmt.Errorf("failed to create file %s: %w", filename, err)
 	}
 	defer file.Close()
-
 	// Обновляем заголовок перед записью
 	bm.H.ImgSize = uint32(len(bm.Px.Data)) // Размер пиксельных данных
 	bm.H.FSize = 54 + bm.H.ImgSize         // Общий размер файла (заголовок + пиксели)

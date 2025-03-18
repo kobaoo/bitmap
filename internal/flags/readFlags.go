@@ -21,8 +21,6 @@ func ReadFlags() Config {
 	var cfg Config
 
 	flag.StringVar(&cfg.Command, "command", "", "Command to execute (header, copy, apply)")
-	flag.StringVar(&cfg.Filename, "filename", "", "Source file to process")
-	flag.StringVar(&cfg.NewFileName, "newfilename", "", "Output file for processed image")
 	flag.Var((*stringSliceFlag)(&cfg.MirrorType), "mirror", "Mirroring options (horizontal, vertical). Can be specified multiple times.")
 	flag.Var((*stringSliceFlag)(&cfg.FilterType), "filter", "Filter to apply on bitmap")
 	flag.Var((*stringSliceFlag)(&cfg.RotateType), "rotate", "Rotation options (right, left, 90, -90, 180). Can be specified multiple times.")
@@ -63,8 +61,21 @@ func ReadFlags() Config {
 
 	// Remove the first argument (the command) before parsing flags
 	os.Args = append([]string{os.Args[0]}, os.Args[2:]...)
+
 	flag.Parse()
 
+	if len(flag.Args()) < 2 {
+		fmt.Println("Error: Missing input and output filenames")
+		flag.Usage()
+		os.Exit(1)
+	} else if len(flag.Args()) > 2 {
+		fmt.Println("Error: extra flags")
+		flag.Usage()
+		os.Exit(1)
+	}
+
+	cfg.Filename = flag.Args()[0]
+	cfg.NewFileName = flag.Args()[1]
 	// If --help is passed, show command-specific usage
 	if cfg.Help {
 		switch cfg.Command {
