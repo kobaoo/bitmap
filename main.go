@@ -13,7 +13,7 @@ func main() {
 	cfg := flags.ReadFlags()
 
 	// Load the bitmap
-	bm, err := tools.LoadBitmap(cfg.Filename)
+	bm, err := tools.LoadBitmap(cfg.Fname)
 	if err != nil {
 		log.Fatal("Error:", err)
 	}
@@ -23,32 +23,32 @@ func main() {
 	case "header":
 		bm.H.Print()
 	case "copy":
-		err := bm.Copy(cfg.NewFileName)
+		err := bm.Copy(cfg.NewFName)
 		if err != nil {
 			log.Fatal("Error:", err)
 		}
 	case "apply":
 		if len(cfg.MirrorType) != 0 {
-			err := bm.Mirror(cfg.NewFileName, cfg.MirrorType)
+			err := bm.Mirror(cfg.NewFName, cfg.MirrorType)
 			if err != nil {
 				log.Fatal("Error:", err)
 			}
 		}
 		if len(cfg.FilterType) != 0 {
-			err := bm.Filter(cfg.NewFileName, cfg.FilterType)
+			err := bm.Filter(cfg.NewFName, cfg.FilterType)
 			if err != nil {
 				log.Fatal("Error:", err)
 			}
 		}
 		if len(cfg.RotateType) != 0 {
-			err := bm.Rotate(cfg.NewFileName, cfg.RotateType)
+			err := bm.Rotate(cfg.NewFName, cfg.RotateType)
 			if err != nil {
 				log.Fatal("Error:", err)
 			}
 		}
 
 		if len(cfg.CropParams) != 0 {
-			err := bm.Crop(cfg.NewFileName, cfg.CropParams)
+			err := bm.Crop(cfg.NewFName, cfg.CropParams)
 			if err != nil {
 				log.Fatal("Error:", err)
 			}

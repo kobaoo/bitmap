@@ -12,7 +12,7 @@ func (bm *Bitmap) Mirror(newfilename string, commands []string) error {
 		copy(mirrored, pxdata)
 
 		switch command {
-		case "h", "hor", "horizontally":
+		case "h", "hor", "horizontally", "horizontal":
 			// Horizontal mirroring
 			for y := 0; y < h; y++ {
 				rowStart := y * rowSize
@@ -31,7 +31,7 @@ func (bm *Bitmap) Mirror(newfilename string, commands []string) error {
 				}
 			}
 
-		case "v", "ver", "vertically":
+		case "v", "ver", "vertically", "vertical":
 			// Vertical mirroring
 			for y := 0; y < h/2; y++ {
 				srcRowStart := y * rowSize

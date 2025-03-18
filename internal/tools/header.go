@@ -43,12 +43,7 @@ func ReadImageHeader(r io.Reader, fname string) (*BMPHeader, error) {
 	if string(buf[:2]) != "BM" {
 		return nil, fmt.Errorf("Error: %s is not bitmap file", fname)
 	}
-	if len(fname) < 5 {
-		log.Fatal("Error: too short name of the files")
-	}
-	if fname[len(fname)-4:] != ".bmp" {
-		log.Fatal("Error: not bmp format")
-	}
+
 	bh.Ftype = "BM"
 
 	// Decode fields from the buffer
@@ -60,7 +55,13 @@ func ReadImageHeader(r io.Reader, fname string) (*BMPHeader, error) {
 	bh.H = readInt16(buf[22:26])
 	bh.ColorPlanes = readUint16(buf[26:28])
 	bh.BitsPerPx = readUint16(buf[28:30])
+	if bh.BitsPerPx != 24 {
+		log.Fatal("Error: Not 24-bit color")
+	}
 	bh.Comp = readUint16(buf[30:34])
+	if bh.Comp != 0 {
+		log.Fatal("Error: Compressed file given")
+	}
 	bh.ImgSize = readUint32(buf[34:38])
 	if bh.ImgSize == 0 {
 		bytesPerRow := ((int(bh.W)*int(bh.BitsPerPx) + 31) / 32) * 4

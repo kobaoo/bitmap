@@ -65,12 +65,6 @@ func LoadBitmap(fname string) (*Bitmap, error) {
 }
 
 func (bm *Bitmap) Save(fname string) error {
-	if len(fname) < 5 {
-		log.Fatal("Error: too short name of the files")
-	}
-	if fname[len(fname)-4:] != ".bmp" {
-		log.Fatal("Error: not bmp format")
-	}
 	file, err := os.Create(fname)
 	if err != nil {
 		return fmt.Errorf("failed to create file %s: %w", fname, err)

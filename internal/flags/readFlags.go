@@ -8,14 +8,14 @@ import (
 )
 
 type Config struct {
-	Command     string
-	Filename    string
-	NewFileName string
-	MirrorType  []string
-	FilterType  []string
-	RotateType  []string
-	CropParams  []string
-	Help        bool
+	Command    string
+	Fname      string
+	NewFName   string
+	MirrorType []string
+	FilterType []string
+	RotateType []string
+	CropParams []string
+	Help       bool
 }
 
 func ReadFlags() Config {
@@ -27,6 +27,8 @@ func ReadFlags() Config {
 	flag.Var((*stringSliceFlag)(&cfg.RotateType), "rotate", "Rotation options (right, left, 90, -90, 180). Can be specified multiple times.")
 	flag.Var((*stringSliceFlag)(&cfg.CropParams), "crop", "Crop image: xOffset-yOffset-width-height")
 	flag.BoolVar(&cfg.Help, "help", false, "Prints usage information")
+	flag.BoolVar(&cfg.Help, "helps", false, "Prints usage information")
+	flag.BoolVar(&cfg.Help, "h", false, "Prints usage information")
 
 	// Default usage (for ./bitmap)
 	flag.Usage = func() {
@@ -63,22 +65,6 @@ func ReadFlags() Config {
 	os.Args = append([]string{os.Args[0]}, os.Args[2:]...)
 
 	flag.Parse()
-
-	// This piece of code checks if filename and newfilename was written
-	if cfg.Command != "header" && len(os.Args) < 2 {
-		log.Fatal("Error: You have less arguments than expected")
-	}
-	if cfg.Command != "header" && len(flag.Args()) < 2 {
-		log.Fatal("Error: You don't wrote filename or newfilename")
-	}
-	if cfg.Command != "header" && len(flag.Args()) > 2 {
-		log.Fatal("Error: You have more arguments than needed")
-	}
-	cfg.Filename = flag.Args()[0]
-	if cfg.Command != "header" {
-		cfg.NewFileName = flag.Args()[1]
-	}
-
 	// If --help is passed, show command-specific usage
 	if cfg.Help {
 		switch cfg.Command {
@@ -107,8 +93,34 @@ func ReadFlags() Config {
 		}
 	}
 
+	// This piece of code checks if filename and newfilename was written
+	if len(os.Args) < 2 {
+		log.Fatal("Error: You have less arguments than expected")
+	}
+	if cfg.Command != "header" && len(flag.Args()) < 2 {
+		log.Fatal("Error: You don't wrote filename or newfilename")
+	}
+	if cfg.Command != "header" && len(flag.Args()) > 2 {
+		log.Fatal("Error: You have more arguments than needed or you should have file names as the last arguments")
+	}
+	cfg.Fname = flag.Args()[0]
+	if len(cfg.Fname) < 5 {
+		log.Fatal("Error: too short name of the files")
+	} else if cfg.Fname[len(cfg.Fname)-4:] != ".bmp" {
+		log.Fatal("Error: not bmp format")
+	}
+
+	if cfg.Command != "header" {
+		cfg.NewFName = flag.Args()[1]
+		if len(cfg.NewFName) < 5 {
+			log.Fatal("Error: too short name of the files")
+		} else if cfg.NewFName[len(cfg.NewFName)-4:] != ".bmp" {
+			log.Fatal("Error: not bmp format")
+		}
+	}
+
 	// Validate required flags
-	if cfg.Command == "" || cfg.Filename == "" {
+	if cfg.Command == "" || cfg.Fname == "" {
 		fmt.Fprintln(os.Stderr, "Error: -command and -filename are required")
 		flag.Usage()
 		os.Exit(1)
@@ -119,7 +131,7 @@ func ReadFlags() Config {
 	case "header":
 		// No additional flags required
 	case "copy", "apply":
-		if cfg.NewFileName == "" {
+		if cfg.NewFName == "" {
 			fmt.Fprintln(os.Stderr, "Error: -newfilename is required for this command")
 			flag.Usage()
 			os.Exit(1)
