@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"io"
+	"log"
 	"os"
 )
 
@@ -41,6 +42,12 @@ func ReadImageHeader(r io.Reader, fname string) (*BMPHeader, error) {
 	// Validate the signature (first 2 bytes)
 	if string(buf[:2]) != "BM" {
 		return nil, fmt.Errorf("Error: %s is not bitmap file", fname)
+	}
+	if len(fname) < 5 {
+		log.Fatal("Error: too short name of the files")
+	}
+	if fname[len(fname)-4:] != ".bmp" {
+		log.Fatal("Error: not bmp format")
 	}
 	bh.Ftype = "BM"
 
