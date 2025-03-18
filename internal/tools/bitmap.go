@@ -30,7 +30,7 @@ func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16, imgSize uint32) *Pixel
 	padSize := (4 - (rowSize % 4)) % 4
 	expectedSize := uint32(rowSize+padSize) * uint32(h)
 	if uint32(len(*data)) < expectedSize {
-		log.Fatal("Недостаточно данных для изображения")
+		log.Fatal("Not enough data for image")
 	}
 
 	return &Pixel{

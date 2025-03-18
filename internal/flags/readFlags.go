@@ -41,7 +41,7 @@ func ReadFlags() Config {
 
 	if len(os.Args) < 2 {
 		flag.Usage()
-		os.Exit(1)
+		log.Fatal("Error: less arguments than expected.")
 	}
 
 	// Extract command type (first argument)
@@ -56,8 +56,7 @@ func ReadFlags() Config {
 	case "copy":
 		cfg.Command = "copy"
 	default:
-		fmt.Println("Wrong command, use --help")
-		os.Exit(1)
+		log.Fatal("Wrong command, use --help")
 	}
 
 	// Remove the first argument (the command) before parsing flags
