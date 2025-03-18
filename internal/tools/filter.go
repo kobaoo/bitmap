@@ -33,6 +33,23 @@ func (bm *Bitmap) Filter(newfilename string, filterCommands []string) error {
 					pxdata[offset+2] = 0
 				}
 			}
+		case "grayscale":
+			for y := 0; y < int(bm.Px.H); y++ {
+				for x := 0; x < int(bm.Px.W); x++ {
+					offset := y*rowSize + x*btsPerPx
+					r := pxdata[offset]
+					g := pxdata[offset+1]
+					b := pxdata[offset+2]
+
+					// Calculate grayscale value using luminance formula
+					gray := byte(0.299*float64(r) + 0.587*float64(g) + 0.114*float64(b))
+
+					// Set all channels to the grayscale value
+					pxdata[offset] = gray
+					pxdata[offset+1] = gray
+					pxdata[offset+2] = gray
+				}
+			}
 		case "negative":
 			for y := 0; y < int(bm.Px.H); y++ {
 				for x := 0; x < int(bm.Px.W); x++ {
