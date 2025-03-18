@@ -20,6 +20,7 @@ func (bm *Bitmap) Copy(newfilename string) error {
 		rowEnd := rowStart + rowSize
 		row := pxdata[rowStart:rowEnd]
 
+		// Write the row data
 		_, err = file.Write(row)
 		if err != nil {
 			return fmt.Errorf("failed to write pixel data to BMP file: %w", err)
@@ -31,7 +32,6 @@ func (bm *Bitmap) Copy(newfilename string) error {
 			if err != nil {
 				return fmt.Errorf("failed to write padding to BMP file: %w", err)
 			}
-			_, err = file.Write(row)
 		}
 	}
 
