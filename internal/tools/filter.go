@@ -5,7 +5,7 @@ import "fmt"
 func (bm *Bitmap) Filter(newfilename string, filterCommands []string) error {
 	pxdata := bm.Px.Data
 	btsPerPx := int(bm.Px.BytesPerPx)
-	rowSize := int(bm.Px.RowSize) + int(bm.Px.PadSize) // Размер строки с учётом padding
+	rowSize := int(bm.Px.RowSize) + int(bm.Px.PadSize)
 
 	for _, command := range filterCommands {
 		switch command {
@@ -80,7 +80,7 @@ func (bm *Bitmap) pixelate(blockSize int) {
 	h := int(bm.Px.H)
 	w := int(bm.Px.W)
 	btsPerPx := int(bm.Px.BytesPerPx)
-	rowSize := int(bm.Px.RowSize) + int(bm.Px.PadSize) // Учитываем padding
+	rowSize := int(bm.Px.RowSize) + int(bm.Px.PadSize)
 	pxdata := bm.Px.Data
 
 	for y := 0; y < h; y += blockSize {
@@ -88,7 +88,7 @@ func (bm *Bitmap) pixelate(blockSize int) {
 			var r, g, b, count int
 			for dy := 0; dy < blockSize && y+dy < h; dy++ {
 				for dx := 0; dx < blockSize && x+dx < w; dx++ {
-					idx := ((y+dy)*rowSize + (x+dx)*btsPerPx) // Учитываем padding
+					idx := ((y+dy)*rowSize + (x+dx)*btsPerPx)
 					r += int(pxdata[idx])
 					g += int(pxdata[idx+1])
 					b += int(pxdata[idx+2])
@@ -101,7 +101,7 @@ func (bm *Bitmap) pixelate(blockSize int) {
 				b /= count
 				for dy := 0; dy < blockSize && y+dy < h; dy++ {
 					for dx := 0; dx < blockSize && x+dx < w; dx++ {
-						idx := ((y+dy)*rowSize + (x+dx)*btsPerPx) // Учитываем padding
+						idx := ((y+dy)*rowSize + (x+dx)*btsPerPx)
 						pxdata[idx] = byte(r)
 						pxdata[idx+1] = byte(g)
 						pxdata[idx+2] = byte(b)
@@ -126,7 +126,7 @@ func (bm *Bitmap) blur(kernelSize int) {
 
 	for y := 0; y < h; y++ {
 		for x := 0; x < w; x++ {
-			idx := (y*rowSize + x*btsPerPx) // Учитываем padding
+			idx := (y*rowSize + x*btsPerPx)
 			var r, g, b int
 			count := 0
 			for dy := -radius; dy <= radius; dy++ {

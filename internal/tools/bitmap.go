@@ -21,7 +21,7 @@ type Pixel struct {
 	Pad        []byte
 }
 
-func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16, imgSize uint32) *Pixel {
+func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16) *Pixel {
 	if h < 0 {
 		h = -h
 	}
@@ -60,7 +60,7 @@ func LoadBitmap(fname string) (*Bitmap, error) {
 		return nil, err
 	}
 	bm.H = bh
-	bm.Px = NewPixel(&pixels, bh.BitsPerPx, bh.W, bh.H, bh.ImgSize)
+	bm.Px = NewPixel(&pixels, bh.BitsPerPx, bh.W, bh.H)
 	return bm, nil
 }
 
@@ -70,19 +70,17 @@ func (bm *Bitmap) Save(fname string) error {
 		return fmt.Errorf("failed to create file %s: %w", fname, err)
 	}
 	defer file.Close()
-	// Обновляем заголовок перед записью
-	bm.H.ImgSize = uint32(len(bm.Px.Data)) // Размер пиксельных данных
-	bm.H.FSize = 54 + bm.H.ImgSize         // Общий размер файла (заголовок + пиксели)
-	bm.H.HeaderSize = 54                   // Смещение до пикселей
-	bm.H.DIBHeaderSize = 40                // Размер DIB-заголовка (обычно 40)
+	// Update header before writing
+	bm.H.ImgSize = uint32(len(bm.Px.Data))
+	bm.H.FSize = 54 + bm.H.ImgSize
+	bm.H.HeaderSize = 54
+	bm.H.DIBHeaderSize = 40
 
-	// Записываем заголовок BMP
 	err = bm.H.Write(file)
 	if err != nil {
 		return fmt.Errorf("failed to write BMP header: %w", err)
 	}
 
-	// Записываем пиксельные данные
 	_, err = file.Write(bm.Px.Data)
 	if err != nil {
 		return fmt.Errorf("failed to write pixel data: %w", err)

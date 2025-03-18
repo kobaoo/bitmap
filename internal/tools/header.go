@@ -2,7 +2,6 @@ package tools
 
 import (
 	"bufio"
-	"encoding/binary"
 	"fmt"
 	"io"
 	"log"
@@ -50,6 +49,9 @@ func ReadImageHeader(r io.Reader, fname string) (*BMPHeader, error) {
 	bh.FSize = readUint32(buf[2:6])
 	bh.Reserved = readUint16(buf[6:10])
 	bh.HeaderSize = readUint16(buf[10:14])
+	if bh.HeaderSize < 54 {
+		log.Fatal("Error: BMP image has unsupported header size")
+	}
 	bh.DIBHeaderSize = readUint16(buf[14:18])
 	bh.W = readUint16(buf[18:22])
 	bh.H = readInt16(buf[22:26])
@@ -93,21 +95,21 @@ func (h *BMPHeader) Write(file *os.File) error {
 
 	copy(buf[0:2], "BM") // Magic bytes
 
-	binary.LittleEndian.PutUint32(buf[2:6], h.FSize)                   // Общий размер файла
-	binary.LittleEndian.PutUint16(buf[6:8], h.Reserved)                // Зарезервированные 2 байта (должны быть 0)
-	binary.LittleEndian.PutUint16(buf[8:10], h.Reserved)               // Зарезервированные 2 байта (должны быть 0)
-	binary.LittleEndian.PutUint32(buf[10:14], uint32(h.HeaderSize))    // Смещение пиксельных данных (обычно 54)
-	binary.LittleEndian.PutUint32(buf[14:18], uint32(h.DIBHeaderSize)) // Размер DIB-заголовка (обычно 40)
-	binary.LittleEndian.PutUint32(buf[18:22], uint32(h.W))             // Ширина (4 байта)
-	binary.LittleEndian.PutUint32(buf[22:26], uint32(h.H))             // Высота (4 байта)
-	binary.LittleEndian.PutUint16(buf[26:28], h.ColorPlanes)           // Количество цветовых плоскостей (1)
-	binary.LittleEndian.PutUint16(buf[28:30], h.BitsPerPx)             // Бит на пиксель (24)
-	binary.LittleEndian.PutUint32(buf[30:34], uint32(h.Comp))          // Сжатие (0 = нет)
-	binary.LittleEndian.PutUint32(buf[34:38], h.ImgSize)               // Размер пиксельных данных
-	binary.LittleEndian.PutUint32(buf[38:42], uint32(h.XRes))          // Разрешение по X
-	binary.LittleEndian.PutUint32(buf[42:46], uint32(h.YRes))          // Разрешение по Y
-	binary.LittleEndian.PutUint32(buf[46:50], h.ColorsInPalette)       // Количество цветов
-	binary.LittleEndian.PutUint32(buf[50:54], h.ImportantColors)       // Важные цвета
+	writeUint32(buf[2:6], h.FSize)
+	writeUint16(buf[6:8], h.Reserved)
+	writeUint16(buf[8:10], h.Reserved)
+	writeUint16(buf[10:14], h.HeaderSize)
+	writeUint16(buf[14:18], h.DIBHeaderSize)
+	writeUint16(buf[18:22], h.W)
+	writeInt16(buf[22:26], h.H)
+	writeUint16(buf[26:28], h.ColorPlanes)
+	writeUint16(buf[28:30], h.BitsPerPx)
+	writeUint16(buf[30:34], h.Comp)
+	writeUint32(buf[34:38], h.ImgSize)
+	writeUint16(buf[38:42], h.XRes)
+	writeUint16(buf[42:46], h.YRes)
+	writeUint32(buf[46:50], h.ColorsInPalette)
+	writeUint32(buf[50:54], h.ImportantColors)
 
 	_, err := file.Write(buf)
 	if err != nil {

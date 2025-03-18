@@ -29,7 +29,7 @@ func (bm *Bitmap) Crop(newfilename string, params []string) error {
 		newHeight, _ = strconv.Atoi(parts[3])
 	}
 
-	// Проверяем границы
+	// Check borders
 	if xOffset < 0 || yOffset < 0 || newWidth <= 0 || newHeight <= 0 ||
 		xOffset+newWidth > int(bm.Px.W) || yOffset+newHeight > int(bm.Px.H) {
 		return fmt.Errorf("invalid crop dimensions")
@@ -40,7 +40,7 @@ func (bm *Bitmap) Crop(newfilename string, params []string) error {
 	newDataSize := newRowSize * newHeight
 	newData := make([]byte, newDataSize)
 
-	// Обрезаем изображение
+	// Crop Image
 	for y := 0; y < newHeight; y++ {
 		srcRowStart := (yOffset + y) * (int(bm.Px.RowSize) + int(bm.Px.PadSize))
 		dstRowStart := y * newRowSize

@@ -9,10 +9,10 @@ func (bm *Bitmap) Rotate(newfilename string, angles []string) error {
 		switch angle {
 		case "right", "90":
 			bm.Px = rotateRight(bm.Px)
-			bm.H.W, bm.H.H = uint16(bm.H.H), int16(bm.H.W) // ✅ Исправлено
+			bm.H.W, bm.H.H = uint16(bm.H.H), int16(bm.H.W)
 		case "left", "-90":
 			bm.Px = rotateLeft(bm.Px)
-			bm.H.W, bm.H.H = uint16(bm.H.H), int16(bm.H.W) // ✅ Исправлено
+			bm.H.W, bm.H.H = uint16(bm.H.H), int16(bm.H.W)
 		case "180", "-180":
 			bm.Px = rotate180(bm.Px)
 		default:
