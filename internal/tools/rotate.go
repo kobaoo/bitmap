@@ -20,13 +20,11 @@ func (bm *Bitmap) Rotate(newfilename string, angles []string) error {
 		}
 	}
 
-	// **Обновляем заголовок перед сохранением**
-	bm.H.ImgSize = uint32(len(bm.Px.Data)) // Размер пиксельных данных
-	bm.H.FSize = 54 + bm.H.ImgSize         // Общий размер файла
-	bm.H.HeaderSize = 54                   // Смещение до пикселей
-	bm.H.DIBHeaderSize = 40                // Размер DIB-заголовка
+	bm.H.ImgSize = uint32(len(bm.Px.Data))
+	bm.H.FSize = 54 + bm.H.ImgSize
+	bm.H.HeaderSize = 54
+	bm.H.DIBHeaderSize = 40
 
-	// Сохраняем в новый файл
 	return bm.Save(newfilename)
 }
 
@@ -35,9 +33,9 @@ func rotateRight(px *Pixel) *Pixel {
 	newPx := &Pixel{
 		Data:       newData,
 		BytesPerPx: px.BytesPerPx,
-		W:          px.H, // Меняем местами ширину и высоту
+		W:          px.H,
 		H:          px.W,
-		RowSize:    px.H * px.BytesPerPx, // Меняем RowSize
+		RowSize:    px.H * px.BytesPerPx,
 		PadSize:    px.PadSize,
 		Pad:        px.Pad,
 	}
@@ -47,7 +45,6 @@ func rotateRight(px *Pixel) *Pixel {
 			srcIdx := (y*int(px.RowSize) + x*int(px.BytesPerPx))
 			dstIdx := ((int(px.W)-1-x)*int(newPx.RowSize) + y*int(px.BytesPerPx))
 
-			// Копируем правильное количество байтов на пиксель
 			copy(newData[dstIdx:dstIdx+int(px.BytesPerPx)], px.Data[srcIdx:srcIdx+int(px.BytesPerPx)])
 		}
 	}
@@ -61,7 +58,7 @@ func rotateLeft(px *Pixel) *Pixel {
 	newPx := &Pixel{
 		Data:       newData,
 		BytesPerPx: px.BytesPerPx,
-		W:          px.H, // Меняем местами ширину и высоту
+		W:          px.H,
 		H:          px.W,
 		RowSize:    px.H * px.BytesPerPx,
 		PadSize:    px.PadSize,
@@ -81,7 +78,6 @@ func rotateLeft(px *Pixel) *Pixel {
 	return newPx
 }
 
-// Поворот на 180 градусов
 func rotate180(px *Pixel) *Pixel {
 	newData := make([]byte, len(px.Data))
 	newPx := &Pixel{
