@@ -2,6 +2,7 @@ package tools
 
 import (
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -29,7 +30,7 @@ func NewPixel(data *[]byte, bitsPerPx, w uint16, h int16, imgSize uint32) *Pixel
 	padSize := (4 - (rowSize % 4)) % 4
 	expectedSize := uint32(rowSize+padSize) * uint32(h)
 	if uint32(len(*data)) < expectedSize {
-		panic("Недостаточно данных для изображения")
+		log.Fatal("Недостаточно данных для изображения")
 	}
 
 	return &Pixel{

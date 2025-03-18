@@ -3,6 +3,7 @@ package flags
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 )
 
@@ -64,18 +65,18 @@ func ReadFlags() Config {
 
 	flag.Parse()
 
-	if len(flag.Args()) < 2 {
-		fmt.Println("Error: Missing input and output filenames")
-		flag.Usage()
-		os.Exit(1)
-	} else if len(flag.Args()) > 2 {
-		fmt.Println("Error: extra flags")
-		flag.Usage()
-		os.Exit(1)
+	// This piece of code checks if filename and newfilename was written
+	if cfg.Command != "header" && len(os.Args) < 2 {
+		log.Fatal("You have less arguments than expected")
+	}
+	if cfg.Command != "header" && len(flag.Args()) < 2 {
+		log.Fatal("You don't wrote filename or newfilename")
+	}
+	cfg.Filename = flag.Args()[0]
+	if cfg.Command != "header" {
+		cfg.NewFileName = flag.Args()[1]
 	}
 
-	cfg.Filename = flag.Args()[0]
-	cfg.NewFileName = flag.Args()[1]
 	// If --help is passed, show command-specific usage
 	if cfg.Help {
 		switch cfg.Command {

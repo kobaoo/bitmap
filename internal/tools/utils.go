@@ -79,8 +79,8 @@ func (bm *Bitmap) writeHeader(file *os.File) error {
 }
 
 func abs(x int) int {
-    if x < 0 {
-        return -x
-    }
-    return x
+	if x < 0 {
+		return -x
+	}
+	return x
 }
